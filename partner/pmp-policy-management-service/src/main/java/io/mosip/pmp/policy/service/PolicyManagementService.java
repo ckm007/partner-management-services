@@ -181,7 +181,7 @@ public class PolicyManagementService {
 		PolicyGroup policyGroup = validatePolicyGroupName(requestDto.getPolicyGroupName(), false);
 		validateAuthPolicyName(policyGroup.getId(),requestDto.getName());
 		return savePolicy(requestDto.getPolicies(),requestDto.getName(),requestDto.getName(),requestDto.getDesc(),
-				policyGroup.getId(), requestDto.getPolicyType(), requestDto.getPolicyGroupName());
+				policyGroup.getId(), requestDto.getPolicyType(), requestDto.getPolicyGroupName(),requestDto.getPolicyId() == null ? "" : requestDto.getPolicyId());
 	}
 
 	/**
@@ -199,7 +199,7 @@ public class PolicyManagementService {
 					ErrorMessages.AUTH_POLICY_NAME_DUPLICATE_EXCEPTION.getErrorMessage() + requestDto.getName());
 		}
 		return savePolicy(requestDto.getPolicies(),authPolicy.getName(),requestDto.getName(),
-				requestDto.getDesc(),policyGroup.getId(),authPolicy.getPolicy_type(),requestDto.getPolicyGroupName());
+				requestDto.getDesc(),policyGroup.getId(),authPolicy.getPolicy_type(),requestDto.getPolicyGroupName(),authPolicy.getId());
 	}
 
 	/**
@@ -330,7 +330,7 @@ public class PolicyManagementService {
 	 * @throws Exception
 	 */
 	private PolicyCreateResponseDto savePolicy(PolicyAttributesDto request, String oldPolicyName, String newPolicyName, String policyDesc, 
-			String policyGroupId, String policyType, String policyGroupName) 
+			String policyGroupId, String policyType, String policyGroupName,String authPolicyId) 
 					throws PolicyManagementServiceException, Exception {		
 		AuthPolicy authPolicy = authPolicyRepository.findByPolicyGroupAndName(policyGroupId, oldPolicyName);
 		if(authPolicy != null) {			
@@ -348,7 +348,7 @@ public class PolicyManagementService {
 		}else {		
 			authPolicy = new AuthPolicy();		
 			authPolicy.setCrBy(getUser());		
-			authPolicy.setId(PolicyUtil.generateId());
+			authPolicy.setId(authPolicyId=="" ? PolicyUtil.generateId(): authPolicyId);
 			authPolicy.setCrDtimes(LocalDateTime.now());
 			authPolicy.setDescr(policyDesc);
 			authPolicy.setName(newPolicyName);
